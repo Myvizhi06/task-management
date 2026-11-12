@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow - Modern Project & Task Management</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="dark">
+  <div class="app-layout">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <a href="#" class="brand">
+          <div class="brand-icon">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <span class="brand-name">Task<span>Flow</span></span>
+        </a>
+
+        <!-- Workspace Switcher -->
+        <div class="workspace-card">
+          <div class="workspace-avatar">🚀</div>
+          <div class="workspace-info">
+            <span class="workspace-title">Sprint 2026 Core</span>
+            <small>8 Team Members</small>
+          </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="nav-menu">
+          <button class="nav-item active" data-view="board" id="viewBoardBtn">
+            <i class="fa-solid fa-table-columns"></i>
+            <span>Kanban Board</span>
+          </button>
+          <button class="nav-item" data-view="list" id="viewListBtn">
+            <i class="fa-solid fa-bars-staggered"></i>
+            <span>Task List</span>
+          </button>
+          <button class="nav-item" id="navMetricsBtn">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Analytics</span>
+          </button>
+        </nav>
+
+        <!-- Project Tags Quick Filter -->
+        <div class="sidebar-section">
+          <span class="section-label">Labels</span>
+          <div class="tag-filters" id="tagFilters">
+            <button class="tag-pill active" data-tag="all">All Tags</button>
+            <button class="tag-pill" data-tag="Dev">Dev</button>
+            <button class="tag-pill" data-tag="Design">Design</button>
+            <button class="tag-pill" data-tag="Marketing">Marketing</button>
+            <button class="tag-pill" data-tag="Bug">Bug</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-bottom">
+        <button class="theme-toggle" id="themeToggleBtn" title="Switch Theme">
+          <i class="fa-solid fa-sun" id="themeIcon"></i>
+          <span id="themeLabel">Light Mode</span>
+        </button>
+
+        <div class="user-profile">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="avatar" />
+          <div class="user-meta">
+            <span class="user-name">Sarah Connor</span>
+            <small class="user-role">Product Lead</small>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-wrapper">
+      <!-- TOP HEADER -->
+      <header class="top-header">
+        <div class="header-left">
+          <h1 class="header-title" id="pageTitle">Sprint Board</h1>
+          <span class="badge-sprint">Sprint Q4 · Week 46</span>
+        </div>
+
+        <div class="header-right">
+          <!-- Search Input -->
+          <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search tasks, descriptions, assignees..." />
+            <button id="clearSearchBtn" class="btn-clear-search" style="display: none;">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Priority Filter -->
+          <div class="filter-dropdown">
+            <select id="priorityFilter">
+              <option value="all">All Priorities</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+          </div>
+
+          <!-- New Task Button -->
+          <button class="btn btn-primary btn-new-task" id="openCreateModalBtn">
+            <i class="fa-solid fa-plus"></i>
+            <span>New Task</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- PRODUCTIVITY METRICS BAR -->
+      <section class="metrics-bar">
+        <div class="metric-card">
+          <span class="metric-label">Total Tasks</span>
+          <div class="metric-val" id="totalTasksCount">0</div>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">In Progress</span>
+          <div class="metric-val text-warning" id="inProgressCount">0</div>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Completed</span>
+          <div class="metric-val text-success" id="completedCount">0</div>
+        </div>
+        <div class="metric-card progress-card">
+          <div class="progress-info">
+            <span class="metric-label">Sprint Progress</span>
+            <span class="metric-percent" id="completionRateText">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressBarFill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KANBAN BOARD VIEW -->
+      <section class="board-view" id="boardView">
+        <!-- Column 1: Backlog / To Do -->
+        <div class="kanban-col" data-status="todo" id="colTodo">
+          <div class="col-header">
+            <div class="col-title">
+              <span class="col-dot dot-todo"></span>
+              <h3>To Do</h3>
+              <span class="col-counter" id="countTodo">0</span>
+            </div>
+            <button class="btn-add-inline" data-status="todo" title="Add task to To Do">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div class="task-list" id="listTodo" data-status="todo">
+            <!-- Injected dynamically via script.js -->
+          </div>
+        </div>
+
+        <!-- Column 2: In Progress -->
+        <div class="kanban-col" data-status="inprogress" id="colInProgress">
+          <div class="col-header">
+            <div class="col-title">
+              <span class="col-dot dot-inprogress"></span>
+              <h3>In Progress</h3>
+              <span class="col-counter" id="countInProgress">0</span>
+            </div>
+            <button class="btn-add-inline" data-status="inprogress" title="Add task to In Progress">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div class="task-list" id="listInProgress" data-status="inprogress">
+            <!-- Injected dynamically via script.js -->
+          </div>
+        </div>
+
+        <!-- Column 3: In Review -->
+        <div class="kanban-col" data-status="review" id="colReview">
+          <div class="col-header">
+            <div class="col-title">
+              <span class="col-dot dot-review"></span>
+              <h3>Review / QA</h3>
+              <span class="col-counter" id="countReview">0</span>
+            </div>
+            <button class="btn-add-inline" data-status="review" title="Add task to Review">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div class="task-list" id="listReview" data-status="review">
+            <!-- Injected dynamically via script.js -->
+          </div>
+        </div>
+
+        <!-- Column 4: Done -->
+        <div class="kanban-col" data-status="done" id="colDone">
+          <div class="col-header">
+            <div class="col-title">
+              <span class="col-dot dot-done"></span>
+              <h3>Done</h3>
+              <span class="col-counter" id="countDone">0</span>
+            </div>
+            <button class="btn-add-inline" data-status="done" title="Add task to Done">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div class="task-list" id="listDone" data-status="done">
+            <!-- Injected dynamically via script.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- LIST VIEW (ALTERNATIVE VIEW) -->
+      <section class="list-view" id="listView" style="display: none;">
+        <div class="table-container">
+          <table class="tasks-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"></th>
+                <th>Task Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Tag</th>
+                <th>Assignee</th>
+                <th>Due Date</th>
+                <th style="width: 80px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="listTableBody">
+              <!-- Injected dynamically via script.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- CREATE / EDIT TASK MODAL -->
+  <div class="modal-backdrop" id="taskModalBackdrop" style="display: none;">
+    <div class="modal-card">
+      <button class="btn-close-modal" id="closeTaskModalBtn">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="modal-header">
+        <h3 id="modalTitle">Create New Task</h3>
+        <p>Set assignees, deadlines, and priorities for your team.</p>
+      </div>
+
+      <form id="taskForm">
+        <input type="hidden" id="editTaskId" value="" />
+
+        <div class="form-group">
+          <label for="taskTitle">Task Title *</label>
+          <input type="text" id="taskTitle" placeholder="e.g. Implement OAuth2 login with GitHub" required />
+        </div>
+
+        <div class="form-group">
+          <label for="taskDesc">Description</label>
+          <textarea id="taskDesc" rows="3" placeholder="Add detailed instructions, acceptance criteria, or links..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskStatus">Status *</label>
+            <select id="taskStatus" required>
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="review">Review / QA</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskPriority">Priority *</label>
+            <select id="taskPriority" required>
+              <option value="High">🔴 High Priority</option>
+              <option value="Medium" selected>🟡 Medium Priority</option>
+              <option value="Low">🔵 Low Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskTag">Tag / Category *</label>
+            <select id="taskTag" required>
+              <option value="Dev">Dev</option>
+              <option value="Design">Design</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Bug">Bug</option>
+              <option value="Research">Research</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="taskDueDate">Due Date</label>
+            <input type="date" id="taskDueDate" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="taskAssignee">Assignee Name</label>
+          <input type="text" id="taskAssignee" placeholder="e.g. Alex Chen" value="Sarah Connor" />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JAVASCRIPT -->
+  <script src="script.js"></script>
+</body>
+</html>
